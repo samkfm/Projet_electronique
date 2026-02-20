@@ -20,3 +20,7 @@ Pour le buzzer :
 GND -> -
 D8 -> + 
 
+Pour le bargraphe :
+côté blanc = + et coté écriture = -
+Du coté GND on met des résistances 220 kohm
+
