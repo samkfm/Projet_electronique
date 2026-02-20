@@ -1,20 +1,32 @@
-//programme final
-
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-Adafruit_SSD1306 display(128, 32, &Wire, -1);
-
+int leds[3] = {2,3};
+#define BUZZER_PIN 8
 void setup() {
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  display.clearDisplay();
-  
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println("Samantha la best");
-  display.display();
+  for (int i = 0; i < 2; i++) {
+    pinMode(leds[i], OUTPUT);
+  }
+   pinMode(BUZZER_PIN, OUTPUT);
 }
 
-void loop() {}
+void loop() {
+  // Allumage progressif
+  for (int i = 0; i < 2; i++) {
+    digitalWrite(leds[i], HIGH);
+    delay(150);
+  }
+
+  delay(500);
+
+  // Extinction progressive
+  for (int i = 0; i < 2; i++) {
+    digitalWrite(leds[i], LOW);
+    delay(150);
+  }
+
+  delay(500);
+
+  digitalWrite(BUZZER_PIN, HIGH); // Buzzer ON
+  delay(500);
+
+  digitalWrite(BUZZER_PIN, LOW);  // Buzzer OFF
+  delay(500);
+}
