@@ -21,6 +21,7 @@ GND -> -
 D8 -> + 
 
 Pour le bargraphe :
-côté blanc = + et coté écriture = -
-Du coté GND on met des résistances 220 kohm
+côté blanc = - et coté écriture = +
+Du coté + on met des résistances 220 kohm
+chaque LED a sa patte arduino (exemple D2 = LED 1)
 
