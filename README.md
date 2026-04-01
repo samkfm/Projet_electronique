@@ -25,3 +25,8 @@ côté blanc = - et coté écriture = +
 Du coté + on met des résistances 220 kohm
 chaque LED a sa patte arduino (exemple D2 = LED 1)
 
+Pour les servomoteurs : 
+Marron → GND (une des broches GND de la carte)
+Rouge → 5V (broche 5V)
+Orange → une broche digitale (par exemple D9, D10, etc.)
+
