@@ -27,7 +27,7 @@ void loop() {
   delay(200);
 }
 
-
+///////////////////////////////////////////////////////////
 #include <Wire.h>
 
 void setup() {
@@ -55,4 +55,53 @@ void loop() {
     Serial.println("Aucun appareil trouve");
 
   delay(5000);
+}
+////////////////////////////////////////////////////
+#include <Wire.h>
+
+#define IRS_ADDR 0x29
+
+void setup() {
+  Wire.begin();
+  Serial.begin(9600);
+  while (!Serial);
+
+  Serial.println("Lecture distance VL6180X");
+}
+
+void loop() {
+  // Demande de mesure (registre système)
+  writeRegister(0x018, 0x01);
+
+  delay(50); // attendre la mesure
+
+  // Lire distance (registre RESULT_RANGE_VAL = 0x062)
+  byte distance = readRegister(0x062);
+
+  Serial.print("Distance : ");
+  Serial.print(distance);
+  Serial.println(" mm");
+
+  delay(200);
+}
+
+// écrire dans registre
+void writeRegister(uint16_t reg, byte value) {
+  Wire.beginTransmission(IRS_ADDR);
+  Wire.write(reg >> 8);
+  Wire.write(reg & 0xFF);
+  Wire.write(value);
+  Wire.endTransmission();
+}
+
+// lire registre
+byte readRegister(uint16_t reg) {
+  Wire.beginTransmission(IRS_ADDR);
+  Wire.write(reg >> 8);
+  Wire.write(reg & 0xFF);
+  Wire.endTransmission(false);
+
+  Wire.requestFrom(IRS_ADDR, 1);
+  if (Wire.available()) return Wire.read();
+  return 0;
 }
