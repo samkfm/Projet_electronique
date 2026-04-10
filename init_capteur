@@ -1,0 +1,56 @@
+#include <Wire.h>
+#include <VL53L0X.h>  // ou autre lib selon ton capteur
+
+VL53L0X avant;
+VL53L0X gauche;
+VL53L0X droite;
+
+#define AVANT_PIN 9
+#define GAUCHE_PIN 10
+#define DROITE_PIN 11
+
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+
+  pinMode(AVANT_PIN, OUTPUT);
+  pinMode(GAUCHE_PIN, OUTPUT);
+  pinMode(DROITE_PIN, OUTPUT);
+
+  // Éteindre tous les capteurs
+  digitalWrite(AVANT_PIN, LOW);
+  digitalWrite(GAUCHE_PIN, LOW);
+  digitalWrite(DROITE_PIN, LOW);
+  delay(100);
+
+  // --- Capteur AVANT ---
+  digitalWrite(AVANT_PIN, HIGH);
+  delay(10);
+  avant.init();
+  avant.setAddress(0x30);
+
+  // --- Capteur GAUCHE ---
+  digitalWrite(GAUCHE_PIN, HIGH);
+  delay(10);
+  gauche.init();
+  gauche.setAddress(0x31);
+
+  // --- Capteur DROITE ---
+  digitalWrite(DROITE_PIN, HIGH);
+  delay(10);
+  droite.init();
+  droite.setAddress(0x32);
+}
+
+void loop() {
+  Serial.print("Avant: ");
+  Serial.print(avant.readRangeSingleMillimeters());
+
+  Serial.print(" | Gauche: ");
+  Serial.print(gauche.readRangeSingleMillimeters());
+
+  Serial.print(" | Droite: ");
+  Serial.println(droite.readRangeSingleMillimeters());
+
+  delay(200);
+}
