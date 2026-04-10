@@ -14,8 +14,8 @@ void setup() {
 }
 
 void loop() {
-  // AVANCER 
-  gauche.write(180);
+  // AVANCER OK !!
+  gauche.write(0);
   droite.write(180); 
   delay(1000);
 /**
