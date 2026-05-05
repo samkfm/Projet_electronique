@@ -1,4 +1,4 @@
-#define BUZZER_PIN 8
+#define BUZZER_PIN 12
 
 void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
