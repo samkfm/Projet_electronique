@@ -14,7 +14,7 @@ void loop() {
 
 
 //melody bonus qui sert pas
-#define BUZZER_PIN 8
+#define BUZZER_PIN 12
 
 int melody1[] = {392, 349, 392, 330};
 int melody2[]={494, 440, 494, 392};
