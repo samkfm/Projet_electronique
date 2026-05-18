@@ -7,6 +7,7 @@ GND -> GND
 VCC -> 5V 
 SCL -> A5 
 SDA -> A4
+résistances 4,7k SCL et SDA (pareil pour écran)
 
 Pour les capteurs (c'est la même chose pour tous) : 
 GND -> GND 
@@ -14,6 +15,7 @@ VDD -> 5V
 SCL -> A5 
 SDA -> A4
 GPIO0/CE -> 3.3V 
+VIN -> Broche A0, A1, A2
 
 Pour le buzzer : 
 GND -> -
