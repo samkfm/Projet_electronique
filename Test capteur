@@ -105,3 +105,172 @@ byte readRegister(uint16_t reg) {
   if (Wire.available()) return Wire.read();
   return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include <Wire.h>
+#include <Adafruit_VL6180X.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// OLED
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+#define SCREEN_ADDRESS 0x3C   // → change en 0x3D si ton écran ne marche pas
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// Capteur partagé (adresse fixe 0x29)
+Adafruit_VL6180X vl = Adafruit_VL6180X();
+
+// Broches alimentation des capteurs (VIN reliés ici)
+#define PWR_CAP1   A0
+#define PWR_CAP2   A1
+#define PWR_CAP3   A2
+
+void setup() {
+  Serial.begin(115200);
+  delay(500);
+  Serial.println("Demarrage - 3x VL6180X - power cycling");
+
+  // Reset I2C bus (souvent résout les blocages)
+  pinMode(SDA, OUTPUT);
+  pinMode(SCL, OUTPUT);
+  digitalWrite(SDA, LOW);
+  digitalWrite(SCL, LOW);
+  delay(20);
+  pinMode(SDA, INPUT);
+  pinMode(SCL, INPUT);
+  delay(20);
+
+  Wire.begin();
+  Wire.setClock(100000);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println("OLED echec");
+    while (true) delay(1000);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(1,2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 20);
+  display.println(F("Initialisation..."));
+  display.display();
+
+  pinMode(PWR_CAP1, OUTPUT);
+  pinMode(PWR_CAP2, OUTPUT);
+  pinMode(PWR_CAP3, OUTPUT);
+  digitalWrite(PWR_CAP1, LOW);
+  digitalWrite(PWR_CAP2, LOW);
+  digitalWrite(PWR_CAP3, LOW);
+  delay(500);
+
+  // Test de détection un par un (debug)
+  testCapteur(PWR_CAP1, "Cap1");
+  testCapteur(PWR_CAP2, "Cap2");
+  testCapteur(PWR_CAP3, "Cap3");
+
+  display.clearDisplay();
+  display.setCursor(0, 20);
+  display.println(F("Mesures..."));
+  display.display();
+  delay(1000);
+}
+
+void testCapteur(uint8_t pin, const char* nom) {
+  digitalWrite(pin, HIGH);
+  delay(150);          // Délai important pour réveil fiable
+
+  if (vl.begin()) {
+    Serial.print(nom); Serial.println(" detecte OK");
+  } else {
+    Serial.print(nom); Serial.println(" begin() ECHEC");
+  }
+
+  digitalWrite(pin, LOW);
+  delay(100);
+}
+
+void loop() {
+  int dist1 = -1;
+  int dist2 = -1;
+  int dist3 = -1;
+
+  // Capteur 1
+  digitalWrite(PWR_CAP1, HIGH);
+  delay(120);                   // Temps augmenté pour stabilisation
+  if (vl.begin()) {             // Re-init pour "réveiller" proprement
+    uint8_t status = vl.readRangeStatus();
+    if (status == VL6180X_ERROR_NONE) {
+      dist1 = vl.readRange();
+    }
+    Serial.print("Cap1 status: 0x"); Serial.println(status, HEX);
+  }
+  digitalWrite(PWR_CAP1, LOW);
+
+  // Capteur 2
+  digitalWrite(PWR_CAP2, HIGH);
+  delay(120);
+  if (vl.begin()) {
+    uint8_t status = vl.readRangeStatus();
+    if (status == VL6180X_ERROR_NONE) {
+      dist2 = vl.readRange();
+    }
+    Serial.print("Cap2 status: 0x"); Serial.println(status, HEX);
+  }
+  digitalWrite(PWR_CAP2, LOW);
+
+  // Capteur 3
+  digitalWrite(PWR_CAP3, HIGH);
+  delay(120);
+  if (vl.begin()) {
+    uint8_t status = vl.readRangeStatus();
+    if (status == VL6180X_ERROR_NONE) {
+      dist3 = vl.readRange();
+    }
+    Serial.print("Cap3 status: 0x"); Serial.println(status, HEX);
+  }
+  digitalWrite(PWR_CAP3, LOW);
+
+  // Affichage 3 lignes
+  display.clearDisplay();
+  display.setTextSize(1,2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+
+  int offset = 20;
+
+  display.print(F("Capteur 1 : "));
+if (dist1 >= 0 && dist1 <= 220) {
+  int corrected = max(0, dist1 - offset);
+  display.print(corrected);
+  display.println(F(" mm"));
+} else {
+  display.println(F("---"));
+}
+
+display.print(F("Capteur 2 : "));
+if (dist2 >= 0 && dist2 <= 220) {
+  int corrected = max(0, dist2 - offset);
+  display.print(corrected);
+  display.println(F(" mm"));
+} else {
+  display.println(F("---"));
+}
+
+display.print(F("Capteur 3 : "));
+if (dist3 >= 0 && dist3 <= 220) {
+  int corrected = max(0, dist3 - offset);
+  display.print(corrected);
+  display.println(F(" mm"));
+} else {
+  display.println(F("---"));
+}
+
+display.display();
+
+  delay(200);   // ~5 rafraîchissements par seconde
+}
